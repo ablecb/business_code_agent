@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<title>日志查看与问题定位 | Business Code Agent</title>
+<style>
+  :root { color-scheme: dark; }
+  body { font-family: "Microsoft YaHei", system-ui, sans-serif; background: #0f1420; color: #dbe2ee; margin: 0; }
+  header { padding: 14px 22px; border-bottom: 1px solid #2a3350; display: flex; align-items: center; gap: 14px; }
+  header h1 { font-size: 18px; margin: 0; }
+  header a { color: #7fb3ff; font-size: 13px; text-decoration: none; }
+  main { padding: 16px 22px; display: grid; grid-template-columns: 300px 1fr; gap: 16px; }
+  @media (max-width: 960px) { main { grid-template-columns: 1fr; } }
+  .panel { background: #171e30; border: 1px solid #2a3350; border-radius: 10px; padding: 14px; }
+  h2 { font-size: 14px; margin: 0 0 10px; color: #9fb4d8; }
+  #files { list-style: none; padding: 0; margin: 0; max-height: 60vh; overflow: auto; }
+  #files li { padding: 6px 8px; border-bottom: 1px solid #232c46; cursor: pointer; font-size: 13px; }
+  #files li:hover { background: #212b48; }
+  #files li .sz { color: #6b7ba0; font-size: 11px; }
+  textarea, input[type=text], select { background: #0f1420; color: #dbe2ee; border: 1px solid #2a3350; border-radius: 6px; padding: 8px; width: 100%; box-sizing: border-box; font: 12px/1.5 Consolas, monospace; }
+  textarea { min-height: 180px; }
+  .row { display: flex; gap: 8px; align-items: center; margin: 8px 0; }
+  .row label { font-size: 12px; color: #9fb4d8; white-space: nowrap; }
+  .row input { width: auto; flex: 1; }
+  button { background: #2f6fed; color: #fff; border: 0; border-radius: 6px; padding: 8px 18px; cursor: pointer; font-size: 13px; }
+  button:disabled { opacity: .5; cursor: not-allowed; }
+  pre { background: #0b101c; border: 1px solid #232c46; border-radius: 8px; padding: 10px; overflow: auto; max-height: 46vh; font: 12px/1.5 Consolas, monospace; white-space: pre-wrap; }
+  #diag { white-space: pre-wrap; font: 13px/1.7 "Microsoft YaHei", sans-serif; max-height: 62vh; overflow: auto; }
+  #diag h2 { margin: 14px 0 6px; color: #ffd479; }
+  .muted { color: #6b7ba0; font-size: 12px; }
+  .badge { display: inline-block; background: #24335c; border-radius: 10px; padding: 1px 8px; font-size: 11px; color: #9fb4d8; }
+</style>
+</head>
+<body>
+<header>
+  <h1>日志查看与问题定位</h1>
+  <a href="/">← 返回首页</a>
+  <span class="muted">喂一段日志 → AI 定位类/方法/根因/修复（含分支走错五段证据链）</span>
+</header>
+<main>
+  <div class="panel">
+    <h2>日志文件</h2>
+    <div class="row"><input id="filterFiles" type="text" placeholder="筛选文件名…"/></div>
+    <ul id="files"></ul>
+  </div>
+  <div>
+    <div class="panel">
+      <h2>① 选日志 / 直接粘贴</h2>
+      <div class="row">
+        <label>选中文件</label><input id="curFile" type="text" readonly placeholder="在上方列表选择日志文件"/>
+        <label>行数</label><input id="tailLines" type="number" value="400" min="10" max="5000" style="flex:none;width:80px"/>
+        <label>正则</label><input id="tailPattern" type="text" placeholder="如: ERROR|Exception|风控|handleMsg"/>
+        <button id="btnTail">读取/筛选</button>
+      </div>
+      <textarea id="logText" placeholder="或直接粘贴日志片段（或先点「读取/筛选」把文件内容载入这里再编辑）"></textarea>
+      <div class="row">
+        <label>补充描述（可选）</label><input id="question" type="text" placeholder="如: 配置了不走风控但实际却走了风控，为什么"/>
+      </div>
+      <div class="row"><button id="btnDiag">② 开始定位问题</button> <span id="diagState" class="muted"></span></div>
+    </div>
+    <div class="panel">
+      <h2>诊断结果</h2>
+      <div id="diag" class="muted">待诊断…</div>
+    </div>
+  </div>
+</main>
+<script src="/static/logdiag.js"></script>
+</body>
+</html>

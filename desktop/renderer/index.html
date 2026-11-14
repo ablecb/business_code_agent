@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="Content-Security-Policy"
+        content="default-src 'self'; connect-src 'self' http: https: ws: wss:; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self'" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Business Code Agent</title>
+  <script src="theme-boot.js"></script>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="app">
+
+    <!-- ═══════════════════════════════════════════════════════════════
+         Sidebar — Apple-style narrow monochrome panel
+         ═══════════════════════════════════════════════════════════════ -->
+    <aside class="sidebar" id="sidebar">
+      <nav class="side-nav">
+        <button type="button" class="nav-row" id="btnNewChat">
+          <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+            <path fill="currentColor" d="M11 5h2v6h6v2h-6v6h-2v-6H5v-2h6z"/>
+          </svg>
+          <span>新对话</span>
+        </button>
+        <button type="button" class="nav-row" id="btnPickDir">
+          <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+            <path fill="currentColor" d="M3 6a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6z"/>
+          </svg>
+          <span>打开项目</span>
+        </button>
+      </nav>
+
+      <!-- Projects -->
+      <section class="side-section">
+        <header class="side-head">
+          <h2>项目</h2>
+          <button type="button" class="icon-btn" id="btnRefreshProjects" title="刷新项目">↻</button>
+        </header>
+        <div class="side-list project-list" id="projectList">
+          <p class="empty-list">暂无项目</p>
+        </div>
+      </section>
+
+      <!-- Knowledge Base -->
+      <section class="side-section">
+        <header class="side-head">
+          <h2>知识库</h2>
+          <button type="button" class="icon-btn" id="btnRefreshKb" title="刷新知识库">↻</button>
+        </header>
+        <p class="side-msg kb-hint">上传全局文档（md/txt/pdf），对话时自动检索引用</p>
+        <div class="kb-actions">
+          <button type="button" class="btn-mini primary" id="btnUploadKb">上传文档</button>
+          <input type="file" id="kbFileInput" accept=".md,.markdown,.txt,.pdf,text/plain,text/markdown,application/pdf" hidden multiple />
+        </div>
+        <p class="side-msg" id="uploadMsg"></p>
+        <div class="side-list kb-list" id="kbList"></div>
+      </section>
+
+      <!-- Sessions -->
+      <section class="side-section side-section-grow">
+        <header class="side-head">
+          <h2>对话</h2>
+        </header>
+        <div class="project-chip" id="activeProjectChip">未选择项目</div>
+        <div class="side-list" id="sessionList">
+          <p class="empty-list">暂无对话</p>
+        </div>
+      </section>
+
+      <footer class="side-foot">
+        <button type="button" class="foot-gear" id="btnSettings"
+                title="设置" aria-label="设置" aria-expanded="false">
+          <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+            <path fill="currentColor" d="M19.14 12.94c.04-.31.06-.63.06-.94s-.02-.63-.06-.94l2.03-1.58a.5.5 0 0 0 .12-.64l-1.92-3.32a.5.5 0 0 0-.6-.22l-2.39.96a7.03 7.03 0 0 0-1.63-.94l-.36-2.54A.5.5 0 0 0 13.9 2h-3.8a.5.5 0 0 0-.5.42l-.36 2.54c-.59.24-1.13.55-1.63.94l-2.39-.96a.5.5 0 0 0-.6.22L2.7 8.48a.5.5 0 0 0 .12.64l2.03 1.58c-.04.31-.06.63-.06.94s.02.63.06.94L2.82 14.58a.5.5 0 0 0-.12.64l1.92 3.32c.14.24.43.34.68.22l2.39-.96c.5.39 1.04.7 1.63.94l.36 2.54c.05.24.26.42.5.42h3.8c.24 0 .45-.18.5-.42l.36-2.54c.59-.24 1.13-.55 1.63-.94l2.39.96c.25.12.54.02.68-.22l1.92-3.32a.5.5 0 0 0-.12-.64l-2.03-1.58zM12 15.5A3.5 3.5 0 1 1 12 8.5a3.5 3.5 0 0 1 0 7z"/>
+          </svg>
+        </button>
+        <div class="foot-meta">
+          <span class="pill" id="healthStatus">连接中</span>
+          <span class="health" id="healthDot" title="后端连接状态"></span>
+        </div>
+      </footer>
+    </aside>
+
+    <!-- ═══════════════════════════════════════════════════════════════
+         Main Area
+         ═══════════════════════════════════════════════════════════════ -->
+    <main class="main">
+      <header class="topbar">
+        <div class="topbar-left">
+          <span class="brand">Code Agent</span>
+          <span class="sep">/</span>
+          <span id="chatTitle">新对话</span>
+        </div>
+        <div class="topbar-right">
+          <span class="patch-status" id="patchStatus" hidden></span>
+          <button type="button" class="btn-mini" id="btnStopPatch" hidden>停止</button>
+          <button type="button" class="topbar-theme" id="btnToggleTheme" title="切换主题">主题</button>
+        </div>
+      </header>
+
+      <div class="workbench">
+        <section class="chat-pane" id="chatPane">
+          <!-- Transcript -->
+          <div class="transcript" id="transcript" aria-live="polite">
+            <div class="hero" id="emptyState">
+              <h1>从一句需求开始</h1>
+              <p>
+                未选择项目 = 普通 AI 问答（带上下文记忆）；勾选项目 = 基于代码问答。
+                同一会话内可来回切换，历史不断。
+              </p>
+              <div class="chips">
+                <button type="button" data-prompt="放款流程什么样？从入口到下游回调串一下。">放款流程 ?</button>
+                <button type="button" data-prompt="放款接口增加一个字段 labelBusiness，保存到放款表并透传下游，帮我直接改代码并自测。">改代码 + 自测</button>
+                <button type="button" data-prompt="C盘满了，帮我看看哪些占用空间大，怎么清理？">C盘清理</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Composer -->
+          <footer class="composer-wrap">
+            <form id="chatForm" class="composer">
+              <textarea id="messageInput"
+                        rows="2"
+                        placeholder="描述需求…（未选择项目=普通问答；勾选项目=代码问答）"
+                        autocomplete="off"
+                        autocapitalize="off"
+                        autocorrect="off"
+                        spellcheck="false"
+                        enterkeyhint="send"
+                        tabindex="0"></textarea>
+              <button type="submit" class="send" id="btnSend" aria-label="发送">
+                <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
+                  <path fill="currentColor" d="M12 4.2 5.2 11h4.3v8.8h5V11h4.3L12 4.2z"/>
+                </svg>
+              </button>
+            </form>
+            <p class="fineprint">Enter 发送 · Shift+Enter 换行</p>
+          </footer>
+        </section>
+
+        <!-- Preview Dock -->
+        <div class="preview-dock" id="previewDock" hidden>
+          <div class="preview-resizer" id="previewResizer" title="拖拽调整宽度"></div>
+          <aside class="preview-pane" id="previewPane">
+            <header class="preview-head">
+              <h3 id="previewTitle">改动预览</h3>
+              <div class="preview-head-actions">
+                <div class="preview-view-toggle" role="group" aria-label="预览模式">
+                  <button type="button" class="preview-view-btn is-active"
+                          id="btnPreviewUnified" data-preview-view="unified">Diff</button>
+                  <button type="button" class="preview-view-btn"
+                          id="btnPreviewCompare" data-preview-view="compare">对比</button>
+                </div>
+                <button type="button" class="btn-mini" id="btnSplitPreview" title="分屏">分屏</button>
+                <button type="button" class="icon-btn" id="btnClosePreview" aria-label="关闭">×</button>
+              </div>
+            </header>
+            <div class="preview-filebar" id="previewFilebar"></div>
+            <div class="preview-splits" id="previewSplits">
+              <p class="preview-empty">选择文件查看差异</p>
+            </div>
+          </aside>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Settings Modal -->
+  <div class="settings-modal" id="settingsModal" hidden>
+    <div class="settings-backdrop" id="settingsBackdrop" tabindex="-1"></div>
+    <div class="settings-dialog" role="dialog" aria-modal="true" aria-labelledby="settingsTitle">
+      <header class="settings-dialog-head">
+        <h2 id="settingsTitle">设置</h2>
+        <button type="button" class="icon-btn" id="btnCloseSettings" aria-label="关闭">×</button>
+      </header>
+      <form class="settings-form" id="settingsForm">
+        <label>
+          界面主题
+          <div class="theme-switch" role="group" aria-label="主题">
+            <button type="button" data-theme-pick="dark" id="themePickDark">深色</button>
+            <button type="button" data-theme-pick="light" id="themePickLight">浅色</button>
+          </div>
+        </label>
+        <label>
+          后端地址
+          <input type="url" id="settingsApiBase" name="apiBase"
+                 placeholder="http://127.0.0.1:8000"
+                 autocomplete="off" spellcheck="false" />
+        </label>
+        <p class="hint">对话与 local_chat_interactive 同款：message / project_id / session_id / client_apply，经 /chat/stream</p>
+        <p class="settings-msg" id="settingsMsg"></p>
+        <div class="settings-actions">
+          <button type="submit" class="btn-primary" id="btnSaveSettings">保存</button>
+          <button type="button" class="btn-ghost" id="btnCancelSettings">取消</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="api.js"></script>
+  <script src="local-client.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

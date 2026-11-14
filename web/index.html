@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Business Code Agent</title>
+  <link rel="stylesheet" href="/static/styles.css?v=review1" />
+</head>
+<body>
+  <div class="shell">
+    <header class="nav">
+      <a class="logo" href="/" aria-label="Business Code Agent">
+        <span class="logo-mark"></span>
+        <span class="logo-text">Code Agent</span>
+      </a>
+      <nav class="nav-links">
+        <a class="nav-link" href="/projects">项目</a>
+        <a class="nav-link" href="/logdiag">日志诊断</a>
+        <button type="button" class="nav-link" id="btnNewChat">新建对话</button>
+        <button type="button" class="nav-link" id="btnSessions">会话</button>
+      </nav>
+      <div class="nav-right">
+        <span class="pill" id="healthStatus">连接中…</span>
+      </div>
+    </header>
+
+    <aside class="drawer" id="sessionDrawer" hidden>
+      <div class="drawer-panel">
+        <div class="drawer-head">
+          <h2>会话</h2>
+          <button type="button" class="icon-btn" id="btnCloseDrawer" aria-label="关闭">×</button>
+        </div>
+        <div class="session-list" id="sessionList"></div>
+        <button type="button" class="text-btn" id="btnClearLocal">清除本地记录</button>
+      </div>
+    </aside>
+
+    <main class="stage">
+      <div class="stage-inner">
+        <header class="chat-head">
+          <h1 id="chatTitle">新对话</h1>
+          <p id="sessionMeta">连续多轮，上下文自动保持</p>
+        </header>
+
+        <section class="transcript" id="transcript" aria-live="polite">
+          <div class="hero" id="emptyState">
+            <p class="eyebrow">Business Code Agent</p>
+            <h2>用一句话开始改代码</h2>
+            <p class="lede">像聊天一样描述需求，我会定位流程、圈定修改范围，并按原有风格给出方案。</p>
+            <div class="chips">
+              <button type="button" data-prompt="放款流程什么样？从入口到下游回调串一下。">放款流程什么样</button>
+              <button type="button" data-prompt="放款接口增加一个字段，并落库，然后再透传给下游。">放款加个字段</button>
+              <button type="button" data-prompt="增加一个新接口，需要做参数与业务校验，请按现有代码风格实现。">新增接口</button>
+            </div>
+          </div>
+        </section>
+
+        <footer class="composer-wrap">
+          <form id="chatForm" class="composer">
+            <textarea
+              id="messageInput"
+              rows="1"
+              placeholder="描述你的需求…"
+              autocomplete="off"
+            ></textarea>
+            <button type="submit" class="send" id="btnSend" aria-label="发送">
+              <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+                <path fill="currentColor" d="M12 4l-1.4 1.4 5.6 5.6H4v2h12.2l-5.6 5.6L12 20l8-8z"/>
+              </svg>
+            </button>
+          </form>
+          <p class="fineprint">Enter 发送 · Shift+Enter 换行</p>
+        </footer>
+      </div>
+    </main>
+  </div>
+  <script src="/static/app.js?v=review1"></script>
+</body>
+</html>

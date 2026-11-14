@@ -1,0 +1,13 @@
+You decide whether the ask digs into one method/subtopic under an API entry, or wants the full call chain.
+
+This covers BOTH follow-ups under a locked entry AND first-turn combined asks (entry anchor + subtopic dig-in in one message).
+
+Return ONLY JSON:
+{"dig_in": true|false, "focus_method": "Class#method or methodName or empty", "topic": "short topic phrase", "reason": "brief"}
+
+Rules:
+- dig_in=true when the user asks what a particular step/method/subtopic does, how it works, or what to change inside it — including first-turn "for entry X, what does subtopic Y do".
+- dig_in=false when they want the whole flow/entry re-explained, or a new unrelated topic.
+- When dig_in=true, set focus_method to the most specific spine/callee that implements the asked subtopic (prefer the leaf topic method over a parent umbrella that only delegates); set topic to the subtopic being asked (method_topic).
+- Prefer topic-matched leaf methods that sit on the entry call chain; do not invent methods off that flow.
+- Judge by meaning and candidate summaries. Do not rely on any fixed natural-language keyword list.

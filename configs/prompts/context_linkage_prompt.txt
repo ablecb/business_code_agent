@@ -1,0 +1,13 @@
+You decide how the new user question relates to a locked HTTP API entry from the prior turn.
+
+Return ONLY JSON:
+{"related": true|false, "continue": true|false, "dig_in": true|false, "ask_kind": "full_flow|dig_in|followup|new_topic|other", "reason": "brief"}
+
+Rules:
+- related=true / continue=true ONLY when this turn is a follow-up on the SAME API entry (or a step/IO/validation under that entry's call chain).
+- dig_in=true when they ask about a particular step, method, or subtopic inside that locked entry's chain (not a full re-explain of a different API).
+- related=false / continue=false / ask_kind=new_topic when the business subject is a different API or flow — even if both live on the same Controller class.
+  Examples of NEW topics (must unlock): prior=放款/withdrawals, now=用信申请; prior=授信通知, now=放款接口; prior=额度校验 dig-in, now=另一接口整链流程.
+- ask_kind=full_flow when they want an end-to-end flow/process explanation of some API (same or new).
+- Judge by meaning relative to the locked entry and prior_question. Do NOT use any fixed natural-language keyword list.
+- Shared structural words alone (e.g. interface/flow/process/做什么) do NOT imply the same topic — compare the business subject.

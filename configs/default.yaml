@@ -1,0 +1,74 @@
+project:
+  id: demo-loan
+  root: java_project/demo-loan
+
+ingest:
+  batch_size: 20
+  graph_max_depth: 7
+  tagging_enabled: true
+  flow_analysis_enabled: true
+  # Global tree-sitter AST + topological priority AI (parse-project default path).
+  topo_ast_pipeline_enabled: true
+  topo_max_retries: 2
+  # Empty = whole project under project.root; e.g. "loan-service/src/main/java"
+  topo_package_roots: ""
+  # 0 = analyze all methods; set e.g. 200 for pilot
+  topo_max_methods: 0
+  # false: Neo4j Method nodes omit AI narratives (summary/data_flow/…); keep in MySQL
+  neo4j_store_narratives: false
+  # Pilot entry matchers (framework defaults). Put domain keywords here per project,
+  # or override via FLOW_PILOT_ENTRIES_JSON — do not hardcode industry terms in code.
+  flow_pilot_entries:
+    - id: http_entry
+      flow_key: main_flow
+      flow_role: main
+      kinds: [Controller]
+      keywords: []
+    - id: credit_notification
+      flow_key: credit_flow
+      flow_role: notice
+      kinds: [Controller]
+      keywords: [creditNotification, CreditNotification, CreditController]
+    - id: callback_entry
+      flow_key: main_flow
+      flow_role: callback
+      kinds: [Controller, Listener]
+      keywords: [Callback, CallBack, Notice, Notify, Listener]
+    - id: mq_listener
+      flow_key: main_flow
+      flow_role: async
+      kinds: [Listener]
+      keywords: [RabbitListener, KafkaListener, Listener, Consumer]
+  include_globs:
+    - "**/src/main/java/**/*.java"
+  exclude_globs:
+    - "**/target/**"
+    - "**/.git/**"
+
+# Scoped AST var-resolve for change_impact precision (MySQL bags + CALLS props).
+# Tables created on API start via init_db; bags auto-ensured lazy / startup if empty.
+var_resolve:
+  auto_ensure: true
+  startup_ensure: true
+  default_entry: WithdrawalsController#withdrawals
+  package_roots: loan-service/src/main/java
+  hop: 2
+  min_bags: 5
+
+agent:
+  write_mode: workspace  # inplace | workspace
+  workspace_dir: .agent_workspace
+  top_k_search: 12
+  graph_depth: 5
+
+llm:
+  provider: siliconflow
+  model: Qwen/Qwen3-32b
+  base_url: https://api.siliconflow.cn/v1
+  temperature: 0.2
+  max_tokens: 16384
+
+embedding:
+  provider: siliconflow
+  model: BAAI/bge-large-zh-v1.5
+  dim: 1024

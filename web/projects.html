@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>项目 · Code Agent</title>
+  <link rel="stylesheet" href="/static/styles.css" />
+</head>
+<body>
+  <div class="shell">
+    <header class="nav">
+      <a class="logo" href="/" aria-label="Business Code Agent">
+        <span class="logo-mark"></span>
+        <span class="logo-text">Code Agent</span>
+      </a>
+      <nav class="nav-links">
+        <a class="nav-link active" href="/projects">项目</a>
+        <a class="nav-link" href="/">对话</a>
+      </nav>
+      <div class="nav-right">
+        <span class="pill" id="healthStatus">连接中</span>
+      </div>
+    </header>
+
+    <main class="page">
+      <section class="page-hero">
+        <p class="eyebrow">Projects</p>
+        <h1>管理与解析 Java 项目</h1>
+        <p class="lede">上传代码包，点击解析后会写入标签、说明，并生成 Neo4j 调用图。</p>
+      </section>
+
+      <section class="upload-card">
+        <div class="upload-copy">
+          <h2>新增项目</h2>
+          <p>支持 Maven 多模块工程 zip（需包含 `src/main/java`）。</p>
+        </div>
+        <form id="uploadForm" class="upload-form">
+          <label class="file-field">
+            <input type="file" id="zipFile" accept=".zip,application/zip" required />
+            <span id="fileLabel">选择 .zip 文件</span>
+          </label>
+          <input type="text" id="projectName" placeholder="项目名称（可选）" />
+          <input type="text" id="projectId" placeholder="项目 ID（可选，英文）" />
+          <button type="submit" class="btn-blue" id="btnUpload">上传到后端</button>
+        </form>
+        <p class="form-msg" id="uploadMsg"></p>
+      </section>
+
+      <section class="list-head">
+        <h2>项目列表</h2>
+        <button type="button" class="btn-ghost-solid" id="btnRefresh">刷新</button>
+      </section>
+
+      <section class="project-list" id="projectList">
+        <div class="empty-list">加载中…</div>
+      </section>
+    </main>
+  </div>
+  <script src="/static/projects.js?v=2"></script>
+</body>
+</html>
